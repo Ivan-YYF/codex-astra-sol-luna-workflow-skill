@@ -14,6 +14,7 @@ Luna is the sole writer. Sol and Luna share the workspace, but they do not edit 
 ## What it controls
 
 - One active Luna maximum per task; no parallel or replacement agents.
+- An immediate, verifiable creation receipt after every successful agent-creation call.
 - `fork_turns="none"` and a compact 500-1,500 token Execution Packet, hard-capped at 3,000 tokens.
 - Sol `high` by default; one temporary `max` decision cycle only for genuinely difficult design or failure analysis.
 - Luna `high` by default; temporary `xhigh` only for difficult implementation diagnosis.
@@ -32,6 +33,24 @@ High still insufficient            Sol max for one decision cycle
 ```
 
 Higher effort cannot replace missing evidence. Luna collects implementation facts; Sol handles architecture and contract decisions.
+
+## Creation receipt
+
+Immediately after creating Luna, before any other tool call, emit one receipt using the exact values returned by the creation tool:
+
+```text
+[Agent Creation Receipt]
+- agent_id: <exact returned identifier>
+- model: <actual model>
+- reasoning_effort: <actual effort>
+- role: Luna, sole executor and file writer
+- scope: <one-line task scope>
+- status: <exact returned status>
+- parent: current Sol session
+- limit: one Luna maximum; nested delegation disabled
+```
+
+Use `thread_id` or `client_thread_id` when that is the identifier returned by the tool. Do not invent identifiers or repeat receipts for follow-ups and polling. A failed or indeterminate creation must be reported as such and must not trigger another delegation.
 
 ## Install
 

@@ -1,7 +1,7 @@
 interface:
   display_name: "Luna + Sol Workflow"
   short_description: "Explicit Sol coordination, one Luna executor, and Token controls"
-  default_prompt: "Use $luna-sol-workflow with the current Sol session coordinating at most one Luna to complete this coding task while controlling context, verification, polling, and rework costs."
+  default_prompt: "Use $luna-sol-workflow with the current Sol session coordinating at most one Luna to complete this coding task while controlling context, verification, polling, rework costs, and verifiable creation receipts."
 
 policy:
   allow_implicit_invocation: false

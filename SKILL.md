@@ -1,6 +1,6 @@
 ---
 name: luna-sol-workflow
-description: "Explicitly enable a GPT-5.6 Sol root session to coordinate at most one GPT-5.6 Luna executor and sole writer, with controls for context, logs, polling, verification, and rework Token usage. Use only when the user invokes $luna-sol-workflow; never activate automatically."
+description: "Explicitly enable a GPT-5.6 Sol root session to coordinate at most one GPT-5.6 Luna executor and sole writer, with controls for context, logs, polling, verification, rework, and verifiable creation receipts. Use only when the user invokes $luna-sol-workflow; never activate automatically."
 ---
 
 # Luna + Sol Controlled Workflow
@@ -12,9 +12,28 @@ Apply this workflow only to the task where the user explicitly invokes the skill
 - The current root session should be `gpt-5.6-sol`, acting as the sole coordinator, deep reasoner, and final reviewer. If the actual model cannot be confirmed or selected, state that limitation instead of claiming a model switch.
 - Each task may create zero or one `gpt-5.6-luna`. Create Luna only when the task requires repository inspection, search, command execution, file changes, or test execution. Pure discussion, explanation, planning, and read-only reasoning remain with Sol.
 - Create Luna with `fork_turns="none"`, default reasoning effort `high`, save its Agent ID, and reuse the same Luna for every follow-up.
+- Immediately after every successful agent-creation call, before any search, command, edit, wait, or other tool call, emit exactly one verifiable creation receipt. Do not repeat the receipt for follow-ups, polling, or status reports.
 - Never create a second, parallel, replacement, specialist, testing, or review agent. Luna must not create or delegate to any subagent.
 - Luna is the sole file writer. Sol may inspect relevant files, contracts, diffs, and evidence, but must not edit the shared workspace concurrently.
 - If Luna becomes unavailable, do not automatically create a replacement. Report the completed state, remaining work, and blocker; change the topology only after explicit user approval.
+
+## Creation receipt
+
+After every actual subagent creation, immediately emit this receipt. Use the exact identifier, model, reasoning effort, and status returned by the creation tool. If the tool returns `thread_id` or `client_thread_id`, use that exact field name and full value. Never invent values. Keep the receipt free of task content, code, logs, Token data, secrets, and other sensitive information.
+
+```text
+[Agent Creation Receipt]
+- agent_id: <exact identifier returned by the creation tool>
+- model: <actual model>
+- reasoning_effort: <actual effort>
+- role: Luna, sole executor and file writer
+- scope: <one-line task scope>
+- status: <created/running/queued or the exact returned status>
+- parent: current Sol session
+- limit: one Luna maximum; nested delegation disabled
+```
+
+If creation fails or returns no verifiable identifier, do not emit a success receipt. Emit a concise failure or indeterminate status with the actual error summary and stop further delegation.
 
 ## Execution Packet
 
