@@ -16,7 +16,7 @@ Luna is the sole writer. Sol and Luna share the workspace, but they do not edit 
 - One active Luna maximum per task; no parallel or replacement agents.
 - `fork_turns="none"` and a compact 500-1,500 token Execution Packet, hard-capped at 3,000 tokens.
 - Sol `high` by default; one temporary `max` decision cycle only for genuinely difficult design or failure analysis.
-- Luna `medium` by default; temporary `high` only for difficult implementation diagnosis.
+- Luna `high` by default; temporary `xhigh` only for difficult implementation diagnosis.
 - Narrow repository discovery and filtered command output.
 - Incremental reports instead of repeated files, diffs, or logs.
 - Progressive verification and one normal correction round.
@@ -25,8 +25,8 @@ Luna is the sole writer. Sol and Luna share the workspace, but they do not edit 
 ## Effort policy
 
 ```text
-Routine repository execution       Luna medium
-Hard implementation diagnosis      Luna high
+Routine repository execution       Luna high
+Hard implementation diagnosis      Luna xhigh
 Architecture or contract decision  Sol high
 High still insufficient            Sol max for one decision cycle
 ```

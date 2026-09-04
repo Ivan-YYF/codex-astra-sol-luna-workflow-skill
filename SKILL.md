@@ -11,7 +11,7 @@ Apply this workflow only to the task where the user explicitly invokes the skill
 
 - The current root session should be `gpt-5.6-sol`, acting as the sole coordinator, deep reasoner, and final reviewer. If the actual model cannot be confirmed or selected, state that limitation instead of claiming a model switch.
 - Each task may create zero or one `gpt-5.6-luna`. Create Luna only when the task requires repository inspection, search, command execution, file changes, or test execution. Pure discussion, explanation, planning, and read-only reasoning remain with Sol.
-- Create Luna with `fork_turns="none"`, default reasoning effort `medium`, save its Agent ID, and reuse the same Luna for every follow-up.
+- Create Luna with `fork_turns="none"`, default reasoning effort `high`, save its Agent ID, and reuse the same Luna for every follow-up.
 - Never create a second, parallel, replacement, specialist, testing, or review agent. Luna must not create or delegate to any subagent.
 - Luna is the sole file writer. Sol may inspect relevant files, contracts, diffs, and evidence, but must not edit the shared workspace concurrently.
 - If Luna becomes unavailable, do not automatically create a replacement. Report the completed state, remaining work, and blocker; change the topology only after explicit user approval.
@@ -32,7 +32,7 @@ Prefer paths, symbols, and decisions. Do not copy complete files, the full repos
 
 - Sol uses `high` by default.
 - Sol may use `max` for one decision cycle only when architecture, cross-module consistency, schema/Auth/Authorization/Privacy/provider/deployment boundaries, migration risk, concurrency, or repeated causally related failure requires it. Return to `high` after the decision is formed.
-- Luna uses `medium` by default. Temporarily use `high` for difficult type, framework, test-causality, or implementation diagnosis, then return to `medium`.
+- Luna uses `high` by default. Temporarily use `xhigh` for difficult type, framework, test-causality, or implementation diagnosis, then return to `high`.
 - Luna should return architecture or stable-contract questions to Sol with minimal evidence instead of compensating for missing facts with higher effort.
 
 ## Luna execution and output discipline
