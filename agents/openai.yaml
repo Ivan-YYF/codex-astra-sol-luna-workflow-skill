@@ -1,7 +1,7 @@
 interface:
-  display_name: "Luna + Sol/Astra Workflow"
+  display_name: "Astra/Sol + Luna Workflow"
   short_description: "gpt-5.6-sol/gpt-6-astra plus one Luna executor"
-  default_prompt: "Use $luna-sol-workflow with the current gpt-5.6-sol or gpt-6-astra session coordinating at most one Luna to complete this coding task while controlling context, verification, polling, rework costs, and verifiable creation receipts."
+  default_prompt: "Use $astra-sol-luna-workflow with the current gpt-5.6-sol or gpt-6-astra session coordinating at most one Luna to complete this coding task while controlling context, verification, polling, rework costs, and verifiable creation receipts."
 
 policy:
   allow_implicit_invocation: false

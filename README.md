@@ -1,4 +1,4 @@
-# Codex Luna + Sol/Astra Workflow Skill
+# Codex Astra/Sol + Luna Workflow Skill
 
 An explicit-only Codex skill for a `gpt-5.6-sol` or `gpt-6-astra` root session coordinating at most one `gpt-5.6-luna` executor.
 
@@ -59,15 +59,15 @@ Clone the repository into your Codex skills directory.
 macOS or Linux:
 
 ```bash
-git clone https://github.com/Ivan-YYF/codex-luna-sol-workflow-skill.git \
-  "${CODEX_HOME:-$HOME/.codex}/skills/luna-sol-workflow"
+git clone https://github.com/Ivan-YYF/codex-astra-sol-luna-workflow-skill.git \
+  "${CODEX_HOME:-$HOME/.codex}/skills/astra-sol-luna-workflow"
 ```
 
 Windows PowerShell:
 
 ```powershell
-git clone https://github.com/Ivan-YYF/codex-luna-sol-workflow-skill.git `
-  "$env:USERPROFILE\.codex\skills\luna-sol-workflow"
+git clone https://github.com/Ivan-YYF/codex-astra-sol-luna-workflow-skill.git `
+  "$env:USERPROFILE\.codex\skills\astra-sol-luna-workflow"
 ```
 
 Open a new Codex task or reload the app so skill discovery refreshes.
@@ -77,10 +77,10 @@ Open a new Codex task or reload the app so skill discovery refreshes.
 Invoke it explicitly:
 
 ```text
-$luna-sol-workflow Fix this issue, implement the change, and verify it.
+$astra-sol-luna-workflow Fix this issue, implement the change, and verify it.
 ```
 
-Without `$luna-sol-workflow`, the skill is not injected automatically:
+Without `$astra-sol-luna-workflow`, the skill is not injected automatically:
 
 ```yaml
 policy:

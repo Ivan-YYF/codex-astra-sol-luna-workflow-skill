@@ -1,6 +1,6 @@
 ---
-name: luna-sol-workflow
-description: "Explicitly enable a gpt-5.6-sol or gpt-6-astra root session to coordinate at most one gpt-5.6-luna executor and sole writer, with controls for context, logs, polling, verification, rework, and verifiable creation receipts. Use only when the user invokes $luna-sol-workflow; never activate automatically."
+name: astra-sol-luna-workflow
+description: "Explicitly enable a gpt-5.6-sol or gpt-6-astra root session to coordinate at most one gpt-5.6-luna executor and sole writer, with controls for context, logs, polling, verification, rework, and verifiable creation receipts. Use only when the user invokes $astra-sol-luna-workflow; never activate automatically."
 ---
 
 # Luna + Sol/Astra Controlled Workflow
