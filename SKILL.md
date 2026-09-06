@@ -5,7 +5,7 @@ description: "Use only when explicitly selected or invoked. The current gpt-5.6-
 
 # Astra/Sol + Luna Independent Task Workflow
 
-Use this Skill only when the user explicitly enables it with `$astra-sol-luna-workflow`, a direct Skill link, or the UI; `$` does not need to be the first character in the message. Do not load it when it was not explicitly selected. This Skill does not expand the user's goal, authorization, or permissions, and does not authorize deployments, external writes, or destructive actions. User instructions, project `AGENTS.md`, safety rules, and higher-priority instructions always take precedence.
+Use this Skill only when the user explicitly enables it with `$astra-sol-luna-workflow`, a direct Skill link, or the UI; `$` does not need to be the first character in the message. In a desktop Skill picker, partial text such as `/astr` only filters the available Skills; the user must select the actual **Astra/Sol + Luna Independent Task** item before sending. Treat the selected Skill item as the explicit invocation, while `$astra-sol-luna-workflow <task>` remains the portable text form. Do not load this Skill when it was not explicitly selected. This Skill does not expand the user's goal, authorization, or permissions, and does not authorize deployments, external writes, or destructive actions. User instructions, project `AGENTS.md`, safety rules, and higher-priority instructions always take precedence.
 
 ## Direct-work boundary and topology
 

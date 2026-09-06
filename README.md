@@ -95,13 +95,23 @@ Open a new Codex task or reload the app so skill discovery refreshes.
 
 ## Use
 
-Invoke the skill explicitly:
+### Desktop skill picker
+
+1. Type a partial query such as `/astr` to filter the available Skills.
+2. Select **Astra/Sol + Luna Independent Task** from the suggestion list.
+3. Add the task instructions and send the message.
+
+Typing `/astr` only filters the picker. The Skill is explicitly invoked only after its suggestion item is selected.
+
+### Portable explicit text invocation
+
+Use the complete Skill name when a picker is unavailable or when sharing a prompt across Codex clients:
 
 ```text
 $astra-sol-luna-workflow Fix this issue, implement the change, and verify it.
 ```
 
-Without `$astra-sol-luna-workflow`, the skill is not injected automatically:
+Without a selected Skill item or `$astra-sol-luna-workflow`, the Skill is not injected automatically:
 
 ```yaml
 policy:
