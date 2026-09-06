@@ -12,7 +12,7 @@ param(
     [string]$ExpectedModel = 'gpt-5.6-luna',
 
     [Parameter(Mandatory = $true)]
-    [ValidateSet('high', 'max')]
+    [ValidateSet('xhigh', 'max')]
     [string]$ExpectedEffort,
 
     [string]$SessionsRoot
