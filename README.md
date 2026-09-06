@@ -4,10 +4,10 @@ An explicit-only Codex skill for a current `gpt-5.6-sol` or `gpt-6-astra` task c
 
 ```text
 Current Sol or Astra task
-├── owns scope, authorization, decisions, and review
-├── handles discussion and very small, low-risk edits directly
-└── creates or reuses at most one independent Luna task
-    └── investigates, edits, tests, and verifies as the sole writer
+|-- owns scope, authorization, decisions, and review
+|-- handles discussion and very small, low-risk edits directly
+`-- creates or reuses at most one independent Luna task
+    `-- investigates, edits, tests, and verifies as the sole writer
 ```
 
 The workflow uses an independent Codex task, not a collaboration subagent. It keeps Luna work inspectable in the sidebar, reuses the same task for follow-ups, and can verify the model and reasoning effort of a matching local runtime turn.
@@ -37,16 +37,16 @@ Follow-ups and corrections reuse the same task. Luna must not create additional 
 
 ## Readable creation receipt
 
-The creation receipt uses Chinese Markdown with one field per line. Requested settings remain visibly separate from runtime-confirmed settings:
+The creation receipt uses concise Markdown with one field per line. Requested settings remain visibly separate from runtime-confirmed settings:
 
 ```markdown
-**Luna 任务已创建**
+**Luna task created**
 
-- **任务**：`<threadId 或 clientThreadId>`（主机：`<hostId>`）
-- **请求配置**：`gpt-5.6-luna` · `<high|max>`
-- **运行时核验**：待核验（创建接口未返回实际配置）
-- **工作区**：`<项目短名>` · `<local|worktree>`
-- **任务范围**：<一句话>
+- **Task**: `<threadId or clientThreadId>` (host: `<hostId>`)
+- **Requested configuration**: `gpt-5.6-luna` / `<high|max>`
+- **Runtime verification**: Pending (the creation interface did not return actual settings)
+- **Workspace**: `<short project name>` / `<local|worktree>`
+- **Scope**: <one sentence>
 ```
 
 Missing status is omitted instead of being shown as low-information noise. Full task identifiers, model names, effort values, and returned statuses are preserved.

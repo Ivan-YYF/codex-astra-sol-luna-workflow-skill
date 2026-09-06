@@ -1,87 +1,86 @@
 ---
 name: astra-sol-luna-workflow
-description: "用户显式选择或调用此 Skill 时，由 gpt-5.6-sol/gpt-6-astra 父会话负责决策，协调至多一个独立 gpt-5.6-luna high/max 执行会话，控制职责、交接、上下文、等待、验证和真实回执；极小任务可直做，不自动触发。"
+description: "Use only when explicitly selected or invoked. The current gpt-5.6-sol or gpt-6-astra parent owns decisions and coordinates at most one independent gpt-5.6-luna high/max execution task, with controlled handoffs, context, waiting, verification, and runtime receipts. Tiny tasks may be handled directly; never auto-trigger."
 ---
 
-# Astra/Sol + Luna 独立会话工作流
+# Astra/Sol + Luna Independent Task Workflow
 
-仅在用户通过 `$astra-sol-luna-workflow`、显式 Skill 链接或界面选择明确启用时使用；`$` 不必位于消息首位。未显式选择时不加载。本 Skill 不扩大用户目标、授权或权限，也不授予部署、外部写入或破坏性操作许可。用户指令、项目 `AGENTS.md`、安全规则和更高优先级指令始终优先。
+Use this Skill only when the user explicitly enables it with `$astra-sol-luna-workflow`, a direct Skill link, or the UI; `$` does not need to be the first character in the message. Do not load it when it was not explicitly selected. This Skill does not expand the user's goal, authorization, or permissions, and does not authorize deployments, external writes, or destructive actions. User instructions, project `AGENTS.md`, safety rules, and higher-priority instructions always take precedence.
 
-## 直做边界与拓扑
+## Direct-work boundary and topology
 
-- 纯讨论、解释、规划，以及同时满足“范围与 Owner 明确、局部可逆、验证简单、无跨模块或敏感边界”的极小任务，由父会话直接完成。不能用少量改动掩盖真实风险；不满足任一条件就按复杂任务处理。
-- 根会话负责目标、范围、授权、停止条件、架构与合同推理、方案取舍和最终决策；需要独立执行时使用一个在侧栏可见的 Luna 任务。Luna 负责调查、实现和验证，并把事实证据与待决事项返回根会话；协调会话不先重复完整调查，只定向检查合同、风险、diff 和证据。
-- 进入独立执行模式后，Luna 是唯一执行者和文件写入者；后续跟进、等待和修正均复用同一任务，协调会话保留只读审查许可，不得与其并行编辑。Luna 执行任务包，不再次运行本 Skill 的协调流程，也不得创建其他任务或子智能体。禁止另建并行、替代、测试或审查执行者；Luna 不可用时报告状态和阻塞，不自动换人。
-- 根会话保留宿主实际选定的 `gpt-5.6-sol` 或 `gpt-6-astra`，本 Skill 不切换根模型。根会话使用宿主实际配置的推理强度完成决策；普通决策建议 `high`，架构、跨模块一致性、schema/Auth/Authorization/Privacy/provider/deployment、迁移、并发或其他高风险取舍建议 `max`。只有宿主提供设置能力且实际生效时才声称强度已切换；复杂决策完成后建议恢复 `high`。
-- 独立 Luna 使用 `create_thread`，明确请求 `model: "gpt-5.6-luna"` 及按执行任务选定的 `thinking`；不使用子智能体创建、全历史 fork 或 `fork_turns` 参数。目标与验收标准明确、步骤可重复或适合批量处理的执行轮次使用 `high`；困难的实现诊断、测试因果分析、边界情况检查或执行故障排查可使用 `max`，形成可执行结论后恢复 `high`。Luna 的 `max` 不转移决策 Owner：遇到架构、稳定合同、安全边界或重大方案取舍时，只调查并返回最小证据，等待根会话决定后再实施。运行时拒绝所请求组合时如实报告，不静默降级或替换模型。
-- 只有与目标轮次关联的宿主运行时字段才是模型、强度或状态的确认；请求参数、静态配置和 Luna 自述都不是生效证据。运行记录确认的是该轮采用的配置，不证明内部实际消耗了多少推理 Token。宿主不提供或不允许设置时不得声称已切换，无法确认时如实说明。
+- The parent handles discussion, explanation, planning, and tiny tasks that simultaneously have clear scope and ownership, are local and reversible, have simple verification, and cross no module or sensitive boundary. A small diff does not make a risky task tiny; if any condition is not met, treat the task as complex.
+- The parent owns the goal, scope, authorization, stop conditions, architecture and contract reasoning, trade-offs, and every final decision. When independent execution is needed, use one sidebar-visible Luna task. Luna investigates, implements, and verifies, then returns factual evidence and unresolved questions. The parent avoids repeating Luna's full investigation and reviews only the relevant contracts, risks, diff, and evidence.
+- After independent execution starts, Luna is the sole executor and file writer. Reuse the same task for every follow-up, wait, and correction; the parent retains read-only review permission and must not edit concurrently. Luna executes the packet, does not run this Skill's coordination workflow, and must not create other tasks or subagents. Do not create parallel, replacement, testing, review, or specialist executors. If Luna becomes unavailable, report the completed state and blocker instead of replacing it automatically.
+- Keep the parent on the host-selected `gpt-5.6-sol` or `gpt-6-astra`; this Skill does not switch the parent model. The parent makes decisions at the reasoning effort actually configured by the host. Recommend `high` for ordinary decisions and `max` for architecture, cross-module consistency, schema, authentication, authorization, privacy, providers, deployment, migrations, concurrency, or other high-risk trade-offs. Claim that the effort changed only when the host supports the change and it actually took effect; recommend returning to `high` after the complex decision.
+- Create independent Luna work with `create_thread`, explicitly requesting `model: "gpt-5.6-luna"` and an execution-specific `thinking` value. Use `high` for execution turns with a clear target and acceptance criteria, repeatable steps, or batch processing. Use `max` only for difficult implementation diagnosis, test-causality analysis, edge-case inspection, or execution failure investigation, then return to `high` once the implementation conclusion is actionable. Luna `max` never transfers decision ownership: for architecture, stable contracts, security boundaries, or major trade-offs, Luna gathers minimal evidence and waits for the parent to decide before implementing. Do not create a collaboration subagent, use a full-history fork, or pass `fork_turns`. If the runtime rejects the requested combination, report it without silently downgrading or substituting a model.
+- Only host runtime fields tied to the target turn confirm the model, effort, or state. Request parameters, static configuration, and Luna's self-report are not proof of runtime selection. A runtime record confirms that turn's configuration, not how many internal reasoning tokens were consumed. If the host cannot expose or set a value, state that limitation and do not claim confirmation.
 
-## 独立任务的创建与复用
+## Creating and reusing the independent task
 
-以下为 Codex app 工具短名，以当前宿主接口为准。用户明确要求创建独立任务后才调用 `create_thread`；该 Skill 文件本身不授予创建权限。既有用户授权有效，不重复确认。若本次仅要求编辑 Skill，直接完成配置修改，不额外创建测试任务。任务标题不是模型生效证明；模型选择器可核对当前配置，不能单独证明此前执行轮次采用了该设置。
+The names below refer to Codex app tools and may vary with the current host interface. Call `create_thread` only after the user explicitly authorizes an independent task; this Skill file is not creation authorization. Existing user authorization remains valid and does not need to be requested again. If the user asks only to edit this Skill, make the configuration change directly and do not create a test task. A task title is not model evidence; a model selector may show current configuration but does not prove which settings a previous turn used.
 
-1. 优先复用本工作流已记录的 `threadId` 与 `hostId`；仅当记录缺失时用 `list_threads` 定向寻找。无既有任务时再创建，调用前确认用户对独立任务及 Luna 的选择，并按上述执行规则确定 `high` 或 `max`；缺少决定性授权时只询问缺失事项。
-2. 仓库或目录任务先用 `list_projects` 取得实际 `projectId`，核对项目路径、host 和 `isGitRepository`。Git 项目默认 `environment: {type: "worktree"}`；非 Git 项目用 `local`。用户明确要求直接使用已保存项目时遵从其选择。不要猜项目 ID、分支或把另一个目录当作当前工作区。
-3. worktree 默认从项目默认分支开始；仅当用户明确指定当前工作区或分支时设置相应 `startingState`。若任务依赖尚未包含的未提交改动，先解决起点选择，不让 Luna 基于错误版本执行。没有匹配项目时先解决项目绑定；`projectless` 只用于真正无仓库的任务，不能用于绕过目录权限。
-4. 创建请求包含 `model`、`thinking`、已核对的 `target`、简短标题和最小任务包。独立任务不会自动取得协调会话的完整历史；任务包明确执行目录、起点、Luna 角色、唯一写入者、禁止再委派和停止条件。
-5. 返回 `threadId` 后保存它与 `hostId`。若仅返回 `clientThreadId`，标为创建中，不能传给要求 `threadId` 的工具；等待宿主创建结果，必要时通过 `list_threads` 有限核对实际任务。无法关联真实 ID 时报告未确定状态，不再次创建。成功创建后按宿主要求在最终回复输出创建任务链接指令。
+1. Reuse the `threadId` and `hostId` already recorded for this workflow. Only use `list_threads` for a targeted search when those identifiers are unavailable. Create a task only when no suitable task exists, after confirming the user's independent-task and Luna choice and selecting `high` or `max` by the execution rules above. Ask only for a genuinely missing decision.
+2. For repository or directory work, call `list_projects` to obtain the real `projectId` and verify its path, host, and `isGitRepository`. Default Git projects to `environment: {type: "worktree"}`; use `local` for non-Git projects. Follow an explicit request to use the saved project directly. Do not guess a project ID or branch, or substitute a different directory.
+3. Start a worktree from the project's default branch unless the user explicitly chooses the current working tree or another branch. If the task depends on uncommitted changes that are absent from the chosen start, resolve the starting-state decision before execution. Resolve a missing project binding instead of using `projectless` to bypass directory permissions; use `projectless` only for genuinely repository-free work.
+4. Include the model, thinking effort, verified target, a short title, and the minimal execution packet in the creation request. An independent task does not inherit the parent's complete history. The packet must name the execution directory and start state, define Luna as the sole writer, prohibit further delegation, and state stop conditions.
+5. Save the returned `threadId` and `hostId`. If creation returns only `clientThreadId`, mark the task as pending and do not pass that value to tools that require `threadId`. Wait for host setup and, when necessary, use a bounded `list_threads` lookup to identify the resulting task. If no real identifier can be correlated, report uncertainty and do not create another task. After successful creation, emit any created-task directive required by the host in the final response.
 
-## 创建回执与运行时核验
+## Creation receipt and runtime verification
 
-创建调用返回可核对标识后，立即且只一次发送简短回执，先于任何搜索、命令、编辑、等待或其他工具调用。回执使用简洁中文 Markdown，一项一行；禁止输出以分号连接的单行键值串。返回 `threadId` 时标题为“Luna 任务已创建”，仅返回 `clientThreadId` 时标题为“Luna 任务创建中”。创建接口未返回运行时设置时，必须显示“待核验”，不能把请求值写成实际值：
-
-```markdown
-**Luna 任务已创建**
-
-- **任务**：`<threadId 或 clientThreadId>`（主机：`<hostId>`）
-- **请求配置**：`gpt-5.6-luna` · `<high|max>`
-- **运行时核验**：待核验（创建接口未返回实际配置）
-- **工作区**：`<项目短名>` · `<local|worktree>`
-- **任务范围**：<一句话>
-```
-
-用户可见标签使用中文；`threadId`、`clientThreadId`、`hostId`、模型、强度和工具实际返回的状态值保持完整，不翻译、不截断。工作区默认只显示项目短名和执行环境，路径或分支仅在区分执行位置确有必要时另起一行。接口返回状态时增加一行“**状态**”；未返回 `status` 时省略该行，不显示低信息量的“未提供”。独立任务之间是协调关系，不编造运行时 parent。明确失败或无标识时使用标题“Luna 任务创建失败”，逐行报告实际错误和未确定项，不声称成功、不盲目重建。
-
-首个 Luna 执行轮次开始后核验一次实际轮次配置。宿主接口直接返回模型和强度时优先使用；否则从 `wait_threads` 或 `read_thread` 取得准确 `threadId`、`hostId` 和 `latestTurn.id`。目标位于本地主机且 Codex `sessions` 记录可读时，运行 `scripts/verify_thread_effort.ps1 -ThreadId <threadId> -TurnId <turnId> -ExpectedEffort <high|max>`；不要把完整 JSONL 读入对话。脚本只有在会话 ID、轮次 ID、`model=gpt-5.6-luna` 与该轮预期强度同时匹配时返回 `confirmed: true`，并只输出最小证据和文件行号。
-
-将核验结果并入下一次正常进度或完成消息。确认只适用于匹配的轮次；设置被修改、任务迁移到其他 host、出现字段冲突，或需要声称另一轮也已确认时，核验对应的新轮次。核验消息沿用中文 Markdown 和一项一行的格式：
+After the creation call returns a verifiable identifier, immediately emit exactly one short receipt before any search, command, edit, wait, or other tool call. Use concise Markdown with one field per line; never produce a semicolon-delimited line of key-value pairs. Use the title "Luna task created" when `threadId` is returned and "Luna task is being created" when only `clientThreadId` is returned. When the creation interface does not return runtime settings, show "Pending verification" and never present requested values as actual values:
 
 ```markdown
-**Luna 运行配置已核验**
+**Luna task created**
 
-- **任务**：`<threadId>`
-- **轮次**：`<turnId>`
-- **实际配置**：`gpt-5.6-luna` · `<high|max>`
-- **证据**：`<运行记录路径>:<行号>`
+- **Task**: `<threadId or clientThreadId>` (host: `<hostId>`)
+- **Requested configuration**: `gpt-5.6-luna` / `<high|max>`
+- **Runtime verification**: Pending (the creation interface did not return actual settings)
+- **Workspace**: `<short project name>` / `<local|worktree>`
+- **Scope**: <one sentence>
 ```
 
-远程、云端、受限宿主或脚本失败时，标题改为“Luna 运行配置未能核验”，逐行显示“**请求配置**”“**缺失证据**”和可操作原因；不扩大权限或用 Luna 自述补足。
+Keep the actual `threadId`, `clientThreadId`, `hostId`, model, effort, and returned state values complete and untranslated. Show only the short project name and execution environment by default; add a separate path or branch line only when needed to distinguish the execution location. Add a **State** line when the interface returns a state. Omit it when `status` is absent instead of showing low-information text such as "not provided." Independent tasks are peers for coordination purposes; do not invent a runtime parent relationship. If creation explicitly fails or returns no identifier, use the title "Luna task creation failed," report the actual error and uncertain fields one per line, do not claim success, and do not recreate blindly.
 
+Verify the actual turn configuration once the first Luna execution turn starts. Prefer model and effort fields returned directly by the host. Otherwise obtain the exact `threadId`, `hostId`, and `latestTurn.id` from `wait_threads` or `read_thread`. For a local host with readable Codex `sessions` records, run `scripts/verify_thread_effort.ps1 -ThreadId <threadId> -TurnId <turnId> -ExpectedEffort <high|max>`; do not load the complete JSONL into the conversation. The script returns `confirmed: true` only when the session ID, turn ID, `model=gpt-5.6-luna`, and expected effort all match, and emits only minimal evidence and a source line number.
 
-## 跟进与等待
+Merge verification into the next normal progress or completion message. Confirmation applies only to the matching turn. Verify a new turn when settings change, the task moves to another host, fields conflict, or another turn must be claimed as confirmed. Use the same readable layout:
 
-- 用 `send_message_to_thread` 向同一 `threadId`/`hostId` 发送增量任务包；任务分类不变时省略 `model` 和 `thinking` 以保留现有设置。Luna 轮次在明确批量执行与困难实现诊断之间转换时，为新轮次明确请求对应的 `thinking: "high"` 或 `thinking: "max"`，并核验该轮。出现新的父会话决策边界时先停止相关实施，由根会话作出决定后再发送增量任务包。用户直接更改执行会话设置或下达冲突指令时，以最新用户选择为准，先协调范围，不覆盖或重复派工。
-- 创建是异步的，派发后使用 `wait_threads` 等待；即时状态用 `timeoutMs: 0`，后续沿用返回的 cursor 作为 `targets[].afterCursor`。按宿主单次等待与通信上限分段，不在每段后读取完整会话。
-- 默认无事件检查窗口先为 120 秒，状态未变后为 300 秒；遵守宿主单次调用上限分段等待。完成、失败、用户输入或新风险立即处理。静默不证明失败；约 10 分钟无有效进展时只做一次只读诊断，同一静默段不重复诊断、催促或重建。
-- 只有缺少决策或验收证据时才用 `read_thread`，限制 `turnLimit` 与 `maxOutputCharsPerItem`，按需包含输出。任务要求审批或用户输入时转达，不代替用户作出决定。完成先收简报，再定向读证据。
-- worktree 的改动属于其实际路径和分支；协调会话在该路径审查，不假设已出现在原目录。交付时注明改动位置与整合状态，提交、合并、推送、移交和归档按用户授权执行，不随完成自动进行。
+```markdown
+**Luna runtime configuration verified**
 
-## Execution Packet 与报告
+- **Task**: `<threadId>`
+- **Turn**: `<turnId>`
+- **Actual configuration**: `gpt-5.6-luna` / `<high|max>`
+- **Evidence**: `<runtime record path>:<line>`
+```
 
-协调会话只发送完成任务所需的最小 Packet；没有最低 Token 数，也不凑固定模板。Packet 按需要保留目标、用户可见结果和验收条件，范围/非目标/Owner/授权/停止条件，根会话已作出的方案与合同决策，相关路径、符号、不变量，已知错误与事实证据，以及执行和验证计划。尚未解决的父会话决策必须写成停止条件：Luna 可以调查取证，但在根会话决定前不得修改对应合同或高风险边界。路径必须对应 Luna 实际环境；不要复制 Luna 可自行读取的完整文件、仓库、会话、规格、diff 或长日志。
+For a remote, cloud, restricted host, or script failure, use the title "Luna runtime configuration unavailable" and show **Requested configuration**, **Missing evidence**, and an actionable reason on separate lines. Do not expand permissions or substitute Luna's self-report for missing evidence.
 
-Luna 只报告增量。完成报告按实际需要保留足够的改动路径与行为、验收/验证命令及结果、事实证据、未验证项/剩余风险和需根会话决策；不重复 Packet、未变化事实、完整 diff 或完整日志，后续只发送新增信息。
+## Follow-up and waiting
 
-## 调查、日志与上下文
+- Send incremental packets to the same `threadId` and `hostId` with `send_message_to_thread`. Omit `model` and `thinking` when the execution class is unchanged. When Luna moves between clear or batch execution and difficult implementation diagnosis, explicitly request `thinking: "high"` or `thinking: "max"` for the new turn and verify it. When a new parent-owned decision boundary appears, stop the affected implementation, let the parent decide, and then send the decision in an incremental packet. If the user directly changes the executor's settings or gives conflicting instructions, follow the latest user choice and coordinate scope before sending more work.
+- Creation is asynchronous. After dispatch, use `wait_threads`; use `timeoutMs: 0` for an immediate snapshot and carry forward the returned cursor as `targets[].afterCursor`. Split waits to respect the host's per-call and communication limits; do not reread the whole task after each segment.
+- Start with a 120-second no-event window and use 300 seconds after an unchanged result, split as required by the host's maximum wait. Handle completion, failure, new user input, or new risk immediately. Silence does not prove failure. After roughly ten minutes without meaningful progress, perform one read-only diagnostic; do not repeat diagnostics, nudges, or task creation during the same silent period.
+- Use `read_thread` only when a decision or acceptance result is missing. Limit `turnLimit` and `maxOutputCharsPerItem`, and include outputs only when needed. Forward approval and user-input requests instead of deciding for the user. Collect a concise completion report before reading targeted evidence.
+- Worktree changes belong to the actual worktree path and branch. Review them there instead of assuming they appear in the original checkout. At delivery, identify the modification location and integration state. Commit, merge, push, handoff, and archive only with the required user authorization.
 
-- 先确认 Git 边界和权威项目源，再从任务目录与已知路径开始用 `rg` 定向查路径、符号和调用关系，只读直接相关文件；仅在具体证据需要时扩大搜索，默认跳过依赖、生成物、构建产物、大锁文件和无关规格，先看 diff 统计。不加载或修改无关文件或 Skill。
-- 成功命令返回命令、退出状态和简洁统计；失败命令保留第一处因果错误及最小必要上下文。大日志在合适文件保存，先注意密钥/个人信息并按需脱敏；消息只返回关键证据和位置，但不得为了“简洁”硬截掉根因。
-- 不为此工作创建定时或 recurring automation；除用户授权的唯一 Luna 任务外，不自动创建其他任务。阶段边界可维护简洁摘要，但摘要不清除历史；只有旧上下文已明显失效且确实影响效率时，才建议用最小交接摘要开启新协调任务，不自动新建。
+## Execution packet and reports
 
-## 验证、审查与交付
+Send only the minimum packet needed to complete the task; there is no minimum token count and no fixed template to fill. As needed, preserve the goal, user-visible result, acceptance criteria, scope, non-goals, ownership, authorization, stop conditions, parent-approved design and contract decisions, relevant paths, symbols, invariants, known errors, factual evidence, execution plan, and verification plan. Unresolved parent-owned decisions are stop conditions: Luna may investigate them but must not modify the corresponding contract or high-risk boundary until the parent decides. Paths must refer to Luna's real environment. Do not copy complete files, repositories, conversations, specifications, diffs, or long logs that Luna can read from the workspace.
 
-验证按实际影响和必需门禁逐级扩大：最小因果检查、受影响模块检查、必要的 integration/E2E，最后一次完整必需门禁。无代码、配置、环境或相关证据变化时不重复相同检查；新证据才触发重跑，不削弱安全或验收条件。
+Luna reports only deltas. A completion report should include the changed paths and behavior, commands actually run and their results, factual evidence, unverified items, remaining risk, and decisions required from the parent. Do not repeat the packet, unchanged facts, complete diffs, or complete logs; later reports contain only new information.
 
-根会话只定向审查变更合同、高风险路径、失败路径和验证证据；默认允许一次正常修正，并继续交给同一个 Luna。若相同根因仍未闭合，停止零碎补丁，重新审计 Owner、合同、第一失败边界和现有证据，不创建另一个 Luna。
+## Investigation, logs, and context
 
-最终交付必须区分实际改动、实际运行的验证及结果、通过项、未验证项、剩余风险和用户目标是否完成；分析意见、代码阅读、mock、无关绿色测试或未运行命令不能代替完成证据。
+- Confirm the Git boundary and authoritative project source first. Start from the task directory and known paths, use `rg` for targeted path, symbol, and call-graph searches, and read only related files. Expand the search only for concrete evidence. Skip dependencies, generated files, build artifacts, large lock files, and unrelated specifications by default; inspect diff statistics first. Do not load or modify unrelated files or Skills.
+- For successful commands, report the command, exit status, and concise statistics. For failed commands, retain the first causal error and the minimum necessary context. Save large logs to an appropriate file after checking for secrets and personal data and redacting when necessary. Return only key evidence and its location, without truncating away the root cause.
+- Do not create a timer or recurring automation for this workflow. Apart from the one user-authorized Luna task, do not create other tasks automatically. A short phase summary may be maintained, but it does not erase history. Only suggest a new coordinator task with a minimal handoff summary when old context has become materially stale and is reducing effectiveness; never create it automatically.
+
+## Verification, review, and delivery
+
+Expand verification in proportion to impact and required gates: start with the smallest causal check, then the affected module, required integration or E2E checks, and finally the complete required gate. Do not rerun the same check without a code, configuration, environment, or relevant evidence change; new evidence triggers a rerun. Never weaken a safety or acceptance requirement.
+
+The parent performs a targeted review of changed contracts, high-risk paths, failure paths, and verification evidence. Allow one normal correction round and keep it with the same Luna. If the same root cause remains unresolved, stop incremental patching and reassess ownership, contracts, the first failing boundary, and current evidence; do not create another Luna.
+
+The final delivery must distinguish actual changes, commands actually run and their results, passed checks, unverified items, remaining risk, and whether the user's goal is complete. Analysis, code reading, mocks, unrelated green tests, and commands that were not run are not completion evidence.

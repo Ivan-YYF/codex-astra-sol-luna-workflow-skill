@@ -1,7 +1,7 @@
 interface:
-  display_name: "Astra/Sol + Luna 独立会话"
-  short_description: "Sol/Astra 负责决策，独立 Luna high/max 执行并核验"
-  default_prompt: "$astra-sol-luna-workflow 请由当前 Sol/Astra 会话负责方案和最终决策，创建或复用一个独立 Luna 执行任务：明确、重复或批量执行使用 high，困难实现诊断使用 max，并完成修改与验证。"
+  display_name: "Astra/Sol + Luna Independent Task"
+  short_description: "Sol/Astra decides; one Luna high/max task executes"
+  default_prompt: "Use $astra-sol-luna-workflow with the current Sol/Astra task owning design and final decisions and one independent Luna executor: use high for clear, repeatable, or batch execution and max for difficult implementation diagnosis, then implement and verify the change."
 
 policy:
   allow_implicit_invocation: false
