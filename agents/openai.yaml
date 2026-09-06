@@ -1,7 +1,7 @@
 interface:
   display_name: "Astra/Sol + Luna 独立会话"
-  short_description: "Astra/Sol 协调独立 Luna high/max 会话并核验强度"
-  default_prompt: "$astra-sol-luna-workflow 请创建或复用一个独立 Luna 任务：明确、重复或批量执行使用 high，复杂深度推理使用 max，并完成修改与验证。"
+  short_description: "Sol/Astra 负责决策，独立 Luna high/max 执行并核验"
+  default_prompt: "$astra-sol-luna-workflow 请由当前 Sol/Astra 会话负责方案和最终决策，创建或复用一个独立 Luna 执行任务：明确、重复或批量执行使用 high，困难实现诊断使用 max，并完成修改与验证。"
 
 policy:
   allow_implicit_invocation: false

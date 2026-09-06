@@ -14,25 +14,26 @@ The workflow uses an independent Codex task, not a collaboration subagent. It ke
 
 ## Effort routing
 
-- Use Luna `high` for work with a clear target and acceptance criteria, repeatable execution, or batch processing.
-- Use Luna `max` for architecture, cross-module contracts, schema, authentication, authorization, privacy, providers, deployment, migrations, concurrency, repeated causal failures, or other work that genuinely needs deeper reasoning.
-- If the `high` criteria cannot be confirmed, use `max`.
-- After a complex decision becomes straightforward execution, return later Luna turns to `high`.
+- The current Sol/Astra task owns architecture, stable contracts, scope, authorization, safety boundaries, trade-offs, and every final decision.
+- Use the parent task's actual configured effort for decisions. `high` is the normal recommendation; use `max`, when the host makes it available, for architecture, cross-module consistency, schema, authentication, authorization, privacy, providers, deployment, migrations, concurrency, or other high-risk trade-offs. Return to `high` after the decision.
+- Use Luna `high` for execution with a clear target and acceptance criteria, repeatable steps, or batch processing.
+- Use Luna `max` only for difficult implementation diagnosis, test-causality analysis, edge-case inspection, or execution failure investigation. Return later Luna turns to `high` after the implementation conclusion is clear.
+- Luna `max` never transfers decision ownership. If Luna encounters an unresolved architecture, stable-contract, security-boundary, or major design decision, it gathers minimal evidence and waits for the Sol/Astra parent to decide before implementing that boundary.
 - Handle pure discussion and very small tasks directly in the current Sol/Astra task when scope and ownership are clear, the change is local and reversible, verification is simple, and no sensitive boundary is involved.
 
-Higher effort cannot replace missing evidence, and a runtime configuration record does not prove how many internal reasoning tokens were consumed.
+Higher effort cannot replace missing evidence or an absent parent decision, and a runtime configuration record does not prove how many internal reasoning tokens were consumed.
 
 ## Independent task rules
 
 When the user explicitly authorizes an independent task, the coordinator uses `create_thread` with:
 
 - `model: "gpt-5.6-luna"`;
-- `thinking: "high"` or `"max"` according to the routing rules;
+- `thinking: "high"` or `"max"` according to the Luna execution routing rules;
 - the verified saved project and appropriate `local` or `worktree` environment;
 - a minimal execution packet;
 - one Luna as the sole executor and file writer.
 
-Follow-ups and corrections reuse the same task. Luna must not create additional tasks or subagents. The coordinator may inspect relevant contracts, diffs, and evidence, but does not edit concurrently.
+Follow-ups and corrections reuse the same task. Luna must not create additional tasks or subagents. The coordinator may inspect relevant contracts, diffs, and evidence, but does not edit concurrently. An unresolved parent-owned decision is a stop condition: Luna may investigate it, but must not implement the affected contract or high-risk boundary until the parent decides.
 
 ## Readable creation receipt
 
@@ -109,7 +110,7 @@ policy:
 
 ## Requirements and limitations
 
-- A Skill cannot silently change the active root model.
+- A Skill cannot silently change the active root model or reasoning effort; report the host's actual setting when it cannot be selected or confirmed.
 - Creating an independent task requires explicit user authorization.
 - Local runtime verification requires readable Codex session records.
 - Project instructions, user authorization, and safety boundaries always take precedence.
