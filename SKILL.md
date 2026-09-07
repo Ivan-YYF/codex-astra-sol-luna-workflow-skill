@@ -5,19 +5,6 @@ description: "Use only when explicitly selected or invoked. The current gpt-5.6-
 
 # Astra/Sol + Luna Independent Task Workflow
 
-## 中文说明
-
-这是一个“Sol/Astra 负责决策、最多一个 Luna 独立任务负责执行”的工作流。英文部分是完整执行规范，本节用于快速理解和使用。
-
-- **何时使用**：只有在用户显式选择或调用 `$astra-sol-luna-workflow` 时才使用；不要在未选择时自动触发。
-- **分工**：根任务负责目标、范围、授权边界、停止条件、架构与合约决策及最终交付；Luna 负责调查、修改和验证，并且不得继续创建任务或子智能体。
-- **直接处理**：范围和所有权明确、变更局部且可逆、验证简单、没有敏感边界的讨论或小任务，可以由根任务直接完成；任一条件不满足，就按复杂任务评估是否交给 Luna。
-- **思考强度**：Luna 的 `xhigh` 用于目标清晰、可重复或批量的执行；`max` 只用于困难诊断、测试因果分析或边界检查，结论明确后回到 `xhigh`。根任务普通决策建议 `high`，架构、安全、迁移等高风险决策建议 `max`。
-- **授权与复用**：显式调用本 Skill 并附带执行请求时，当前请求内最多一个独立 Luna 任务不需要再次确认；后续等待、修正和补充应复用同一个 `threadId`。这项授权不会延续到无关的新请求，平台级审批仍然有效。
-- **Skill 生命周期**：由于隐式调用已关闭，每个需要继续按本工作流处理的根任务轮次都应再次显式选择或调用本 Skill；这只是重新加载规则，不是重新授权创建任务。Luna 独立任务内部不应调用本 Skill。
-- **回执与验证**：创建后先给清晰、逐字段的回执，再核对实际模型和思考强度；请求参数、静态配置、标题和模型自报都不能单独证明运行时配置。
-- **上下文与安全**：只发送完成任务所需的最小上下文，排除密钥、令牌和无关大文件；提交、合并、推送或其他外部写操作仍需相应的用户授权。
-
 Use this Skill only when the user explicitly enables it with `$astra-sol-luna-workflow`, a direct Skill link, or the UI; `$` does not need to be the first character in the message. In a desktop Skill picker, partial text such as `/astr` only filters the available Skills; the user must select the actual **Astra/Sol + Luna Independent Task** item before sending. Treat the selected Skill item as the explicit invocation, while `$astra-sol-luna-workflow <task>` remains the portable text form. Do not load this Skill when it was not explicitly selected. This Skill does not expand the user's goal or permissions. An explicit invocation may authorize at most one current-request independent Luna task under the bounded rule below; it does not authorize deployments, unrelated external writes, or destructive actions. User instructions, project `AGENTS.md`, safety rules, and higher-priority instructions always take precedence.
 
 ## Direct-work boundary and topology

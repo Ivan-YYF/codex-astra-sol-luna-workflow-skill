@@ -1,5 +1,9 @@
 # Codex Astra/Sol + Luna Workflow Skill
 
+<p align="center">
+  <a href="README.md">English</a> · <a href="README.zh-CN.md">简体中文</a>
+</p>
+
 An explicit-only Codex skill for a current `gpt-5.6-sol` or `gpt-6-astra` task coordinating at most one sidebar-visible, independent `gpt-5.6-luna` execution task.
 
 ```text
@@ -16,8 +20,8 @@ The workflow uses an independent Codex task, not a collaboration subagent. It ke
 
 - The current Sol/Astra task owns architecture, stable contracts, scope, authorization, safety boundaries, trade-offs, and every final decision.
 - Use the parent task's actual configured effort for decisions. `high` is the normal recommendation; use `max`, when the host makes it available, for architecture, cross-module consistency, schema, authentication, authorization, privacy, providers, deployment, migrations, concurrency, or other high-risk trade-offs. Return to `high` after the decision.
-- Use Luna `high` for execution with a clear target and acceptance criteria, repeatable steps, or batch processing.
-- Use Luna `max` only for difficult implementation diagnosis, test-causality analysis, edge-case inspection, or execution failure investigation. Return later Luna turns to `high` after the implementation conclusion is clear.
+- Use Luna `xhigh` for execution with a clear target and acceptance criteria, repeatable steps, or batch processing.
+- Use Luna `max` only for difficult implementation diagnosis, test-causality analysis, edge-case inspection, or execution failure investigation. Return later Luna turns to `xhigh` after the implementation conclusion is clear.
 - Luna `max` never transfers decision ownership. If Luna encounters an unresolved architecture, stable-contract, security-boundary, or major design decision, it gathers minimal evidence and waits for the Sol/Astra parent to decide before implementing that boundary.
 - Handle pure discussion and very small tasks directly in the current Sol/Astra task when scope and ownership are clear, the change is local and reversible, verification is simple, and no sensitive boundary is involved.
 
@@ -25,15 +29,17 @@ Higher effort cannot replace missing evidence or an absent parent decision, and 
 
 ## Independent task rules
 
-When the user explicitly authorizes an independent task, the coordinator uses `create_thread` with:
+When the user explicitly invokes this Skill with an execution request, that invocation authorizes at most one independent task for the current request; the coordinator uses `create_thread` with:
 
 - `model: "gpt-5.6-luna"`;
-- `thinking: "high"` or `"max"` according to the Luna execution routing rules;
+- `thinking: "xhigh"` or `"max"` according to the Luna execution routing rules;
 - the verified saved project and appropriate `local` or `worktree` environment;
 - a minimal execution packet;
 - one Luna as the sole executor and file writer.
 
 Follow-ups and corrections reuse the same task. Luna must not create additional tasks or subagents. The coordinator may inspect relevant contracts, diffs, and evidence, but does not edit concurrently. An unresolved parent-owned decision is a stop condition: Luna may investigate it, but must not implement the affected contract or high-risk boundary until the parent decides.
+
+This current-request authorization does not carry to unrelated new requests. Platform-level tool approvals, workspace permissions, user instructions, and safety boundaries still apply. Because implicit invocation is disabled, invoke the Skill again on a later root turn when the workflow must continue; this reloads the rules and does not authorize a second Luna task. Luna's own task should not invoke this Skill.
 
 ## Readable creation receipt
 
@@ -43,7 +49,7 @@ The creation receipt uses concise Markdown with one field per line. Requested se
 **Luna task created**
 
 - **Task**: `<threadId or clientThreadId>` (host: `<hostId>`)
-- **Requested configuration**: `gpt-5.6-luna` / `<high|max>`
+- **Requested configuration**: `gpt-5.6-luna` / `<xhigh|max>`
 - **Runtime verification**: Pending (the creation interface did not return actual settings)
 - **Workspace**: `<short project name>` / `<local|worktree>`
 - **Scope**: <one sentence>
@@ -59,7 +65,7 @@ For local tasks whose Codex session logs are readable, verify the exact task and
 .\scripts\verify_thread_effort.ps1 `
   -ThreadId <threadId> `
   -TurnId <turnId> `
-  -ExpectedEffort high
+  -ExpectedEffort xhigh
 ```
 
 Use `-ExpectedEffort max` for a max turn. The script exits successfully only when the session ID, turn ID, `gpt-5.6-luna` model, and expected effort all match. Remote, cloud, or restricted hosts may not expose this evidence; in that case the workflow reports that runtime verification is unavailable.
@@ -121,7 +127,8 @@ policy:
 ## Requirements and limitations
 
 - A Skill cannot silently change the active root model or reasoning effort; report the host's actual setting when it cannot be selected or confirmed.
-- Creating an independent task requires explicit user authorization.
+- An explicit Skill invocation with an execution request authorizes at most one current-request independent task; no second Skill-level confirmation is required.
+- A new unrelated request requires a new explicit Skill invocation.
 - Local runtime verification requires readable Codex session records.
 - Project instructions, user authorization, and safety boundaries always take precedence.
 - The skill does not grant deployment, external-write, destructive-action, or production permissions.
@@ -136,6 +143,7 @@ policy:
 |-- scripts/
 |   `-- verify_thread_effort.ps1
 |-- README.md
+|-- README.zh-CN.md
 `-- LICENSE
 ```
 
