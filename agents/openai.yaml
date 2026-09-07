@@ -1,7 +1,7 @@
 interface:
   display_name: "Astra/Sol + Luna Independent Task"
   short_description: "Sol/Astra decides; one Luna xhigh/max task executes"
-  default_prompt: "Use $astra-sol-luna-workflow with the current Sol/Astra task owning design and final decisions and one independent Luna executor titled [Luna] <root-label> - <scope>: use xhigh for clear, repeatable, or batch execution and max for difficult implementation diagnosis, then implement and verify the change."
+  default_prompt: "Use $astra-sol-luna-workflow with the current Sol/Astra task owning design and final decisions; an explicit invocation authorizes at most one independent Luna task for this request, titled [Luna] <root-label> - <scope>. Use xhigh for clear, repeatable, or batch execution and max for difficult implementation diagnosis, then implement and verify the change."
 
 policy:
   allow_implicit_invocation: false
