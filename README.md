@@ -39,6 +39,8 @@ When the user explicitly invokes this Skill with an execution request, that invo
 
 Follow-ups and corrections reuse the same task. Luna must not create additional tasks or subagents. The coordinator may inspect relevant contracts, diffs, and evidence, but does not edit concurrently. An unresolved parent-owned decision is a stop condition: Luna may investigate it, but must not implement the affected contract or high-risk boundary until the parent decides.
 
+If the user supplies an exact project directory (for example, `D:\codex\Promotion OS`) or asks to use the current project, that path is authoritative. If no exact path is supplied, use the current root task's verified saved project directory (or another saved project explicitly selected by the user) as the target. Request direct `local` execution in either case and verify the created task's actual path before Luna writes. A `worktree` or different directory is a setup failure; stop and report it rather than silently redirecting work. Use an isolated `worktree` only when the user explicitly requests isolation.
+
 This current-request authorization does not carry to unrelated new requests. Platform-level tool approvals, workspace permissions, user instructions, and safety boundaries still apply. Because implicit invocation is disabled, invoke the Skill again on a later root turn when the workflow must continue; this reloads the rules and does not authorize a second Luna task. Luna's own task should not invoke this Skill.
 
 ## Readable creation receipt
@@ -56,6 +58,8 @@ The creation receipt uses concise Markdown with one field per line. Requested se
 ```
 
 Missing status is omitted instead of being shown as low-information noise. Full task identifiers, model names, effort values, and returned statuses are preserved.
+
+For direct-local execution selected for an exact path or the current-project default, add a separate **Path** line showing the resolved absolute directory and mark verification as pending until setup evidence arrives; report the verified actual path in the next progress or completion message. A returned worktree or different directory is a setup failure, not a location to hide in the receipt.
 
 ## Runtime effort verification
 
@@ -126,6 +130,7 @@ policy:
 
 ## Requirements and limitations
 
+- The resolved current-project path is authoritative even when the user omits an exact address: use direct `local` execution unless isolation is explicitly requested, and verify the actual task path before any write.
 - A Skill cannot silently change the active root model or reasoning effort; report the host's actual setting when it cannot be selected or confirmed.
 - An explicit Skill invocation with an execution request authorizes at most one current-request independent task; no second Skill-level confirmation is required.
 - A new unrelated request requires a new explicit Skill invocation.
